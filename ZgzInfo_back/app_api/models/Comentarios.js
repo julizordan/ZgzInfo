@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
 const usuario = require('./Usuario');
 
+const usuarioSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique:true },
+    password: { type: String, required: true, minLength :6 }
+});
+
+
 const comentarioSchema = new mongoose.Schema({
-    usuario: { type: usuario},
+    usuario: [usuarioSchema],
     comentario: { type: String }
 });
 

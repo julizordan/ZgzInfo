@@ -52,3 +52,6 @@ process.on('SIGTERM', () => {
 });
 
 require('./Usuario');
+require('./Incidencia');
+require('./Comentarios');
+require('./Foro');
