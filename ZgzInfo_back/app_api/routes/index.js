@@ -3,6 +3,7 @@ var router = express.Router();
 
 const ctrlUsuarios = require('../controllers/users');
 const ctrlIncidencias = require('../controllers/incidencias');
+const ctrlForos = require('../controllers/foro');
 
 // Usuarios
 router
@@ -24,6 +25,27 @@ router
 router
   .route('/api/incidencias/:calle')
   .get(ctrlIncidencias.incidenciasLisatCalle);
+
+router
+  .route('/api/mapa')
+  .get(ctrlIncidencias.incidenciasMapa);
+
+router
+  .route('/api/mapa/:tipo')
+  .get(ctrlIncidencias.incidenciasMapaTipo);
+
+/*router
+  .route('/api/incidencias/:incidenciaId/foros')
+  .get(ctrlIncidencias.)
+  .post(ctrlIncidencias.);*/
+
+router
+  .route('/api/:userId/foros')
+  .get(ctrlForos.listarForos);
+
+router
+  .route('/api/:userId/:foroId')
+  .post(ctrlForos.suscribeForo);
 
 
 module.exports = router;

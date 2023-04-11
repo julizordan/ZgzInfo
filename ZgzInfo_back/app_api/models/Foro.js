@@ -15,6 +15,7 @@ const comentarioSchema = new mongoose.Schema({
 const foroSchema = new mongoose.Schema({
     titulo: { type: String, required: true, unique:true },
     tipo: { type: String, required: true },
+    suscritos : [userSchema],
     comentarios: [comentarioSchema]
 });
 
