@@ -34,10 +34,9 @@ router
   .route('/api/mapa/:tipo')
   .get(ctrlIncidencias.incidenciasMapaTipo);
 
-/*router
-  .route('/api/incidencias/:incidenciaId/foros')
-  .get(ctrlIncidencias.)
-  .post(ctrlIncidencias.);*/
+router
+  .route('/api/incidencias/:incidenciaId/:userId')
+  .post(ctrlIncidencias.suscribirIncidencia);
 
 router
   .route('/api/:userId/foros')

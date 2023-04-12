@@ -1,6 +1,7 @@
 const axios = require('axios');
 const mongoose = require('mongoose');
 const Incidencia = mongoose.model('Incidencia');
+const user = mongoose.model('Usuario');
 
 /*
 // GET /api/incidencias
@@ -102,7 +103,39 @@ const incidenciasMapaTipo =  async (req, res) => {
       res.status(500).send(error);
   }
 };
+// POST /api/incidencias/{incidenciaId}/suscribir
+const suscribirIncidencia =  async (req, res) => {
+  try{
+    const incidenciaId = req.params.incidenciaId;
+    const userId = req.params.userId;
+    console.log(`id de incidencia   ${incidenciaId}`);
+    console.log(`id de usuario   ${userId}`);
 
+      // Buscar la incidencia por su ID
+      const incidencia = await Incidencia.findById(incidenciaId);
+  
+      if (!incidencia) {
+        return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+      }
+  
+    // Buscar el usuario por su ID
+    const usuario = await user.findById(userId);
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+  
+      // Agregar el usuario a la lista de suscritos de la incidencia
+      incidencia.suscritos.push(usuario);
+      // Guardar los cambios en la base de datos
+      await incidencia.save();
+      res.json({ mensaje: 'El usuario se ha suscrito a la incidencia exitosamente' });
+
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).send(error);
+  }
+};
 
 
 
@@ -110,7 +143,8 @@ const incidenciasMapaTipo =  async (req, res) => {
     incidenciasLista,
     incidenciasLisatCalle,
     incidenciasMapa,
-    incidenciasMapaTipo
+    incidenciasMapaTipo,
+    suscribirIncidencia
   };
   
   
