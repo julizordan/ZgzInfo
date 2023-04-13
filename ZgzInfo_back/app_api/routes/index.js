@@ -19,9 +19,12 @@ router
   .get(ctrlUsuarios.userLogin);
 
 router
-  .route('/api/incidencias')
+  .route('/api/incidenciasLista')
   .get(ctrlIncidencias.incidenciasLista);
 
+router
+    .route('/api/incidencias')
+    .get(ctrlIncidencias.incidencias);
 router
   .route('/api/incidencias/:calle')
   .get(ctrlIncidencias.incidenciasLisatCalle);
