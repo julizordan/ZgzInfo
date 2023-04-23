@@ -1,30 +1,28 @@
 const axios = require('axios');
 const mongoose = require('mongoose');
 const Incidencia = mongoose.model('Incidencia');
+const proj4 = require('proj4');
 
-// GET /api/incidencias
-const incidencias = async (req, res) => {
-    // Hacer la petición HTTP a la fuente de datos
+// GET /api/incidenciasLista
+const incidenciasLista = async (req, res) => {
     const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia.json?')
         .then(response => {
-            //parsear
             var tam = Object.keys(response.data.result).length
             const incidencias = [];
             for (let i = 0; i < tam; i++) {
-                //console.log(response.data.result[i].tipo.title);
                 const insertarIncidencia = new Incidencia({
                     id: response.data.result[i].id,
                     tipo: response.data.result[i].tipo.title,
                     titulo: response.data.result[i].title,
-                    inicio: response.data.result[i].title.inicio,
+                    inicio: response.data.result[i].inicio,
                     fin: response.data.result[i].fin,
                     motivo: response.data.result[i].motivo || 'Motivo no especificado',
                     calle: response.data.result[i].calle,
-                    suscritos: null
+                    coordenadaX: response.data.result[i].geometry?.coordinates[0] || null,
+                    coordenadaY: response.data.result[i].geometry?.coordinates[1] || null
                 });
                 incidencias.push(insertarIncidencia);
             }
-
             Promise.all(incidencias.map(incidencia => incidencia.save()))
                 .then(() => console.log(`Se han guardado ${incidencias.length} incidencias en la base de datos`))
                 .catch(error => console.error('Error al guardar las incidencias:', error));
@@ -35,39 +33,18 @@ const incidencias = async (req, res) => {
             res.status(500).send(error);
         });
 };
-// GET /api/incidencias
-const incidenciasLista = async (req, res) => {
+
+//http://localhost:3000/api/getIndicenciasid/17401
+const getIndicenciasByid = async (req, res) => {
     try {
-        // Hacer la petición HTTP a la fuente de datos
-        const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia');
-
-        // Guardar las incidencias en la base de datos
-        //await Incidencia.create(response.data);
-
-        // Enviar la lista de incidencias como respuesta
-        res.send(response.data);
+        const incidencia = await Incidencia.find({id: req.params.id});
+        if (!incidencia) {
+            return res.status(404).send({message: 'Incidencia no encontrada'});
+        }
+        res.send(incidencia);
     } catch (error) {
         console.error(error);
-        res.status(500).send(error);
-    }
-};
-
-// GET /api/incidencias/:calle
-const incidenciasLisatCalle = async (req, res) => {
-    try {
-        const calle_par = req.params.calle;
-        // Hacer la petición HTTP a la fuente de datos
-        const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia');
-
-        // const filtradas = response.data.result.filter(incidencia => incidencia.includes(calle_par.toUpperCase()));
-        const filtradas = response.data.result.filter(incidencia => incidencia.calle.includes(`${calle_par}`));
-
-
-        res.send(filtradas);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).send(error);
+        res.status(500).send({message: 'Error al obtener la incidencia'});
     }
 };
 
@@ -152,15 +129,14 @@ const suscribirIncidencia = async (req, res) => {
 
 
 module.exports = {
-    incidencias,
     incidenciasLista,
-    incidenciasLisatCalle,
+    getIndicenciasByid,
     incidenciasMapa,
     incidenciasMapaTipo,
     suscribirIncidencia
 };
-  
-  
-  
-  
+
+
+
+
   

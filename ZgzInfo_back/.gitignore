@@ -2,3 +2,4 @@
 /node_modules
 #Ignorar el .idea
 .idea
+../ZgzInfo_back.iml

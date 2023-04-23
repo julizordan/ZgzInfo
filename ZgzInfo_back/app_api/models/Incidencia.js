@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-    email: {type: String, required: false, unique: true, sparse: true},
-    password: {type: String, required: true, minLength: 6}
-});
-
 const incidenciaSchema = new mongoose.Schema({
     id: {type: String, required: true, unique: true},
     tipo: {type: String, required: true},
@@ -13,7 +8,8 @@ const incidenciaSchema = new mongoose.Schema({
     fin: {type: Date},
     motivo: {type: String, required: true},
     calle: {type: String, required: true},
-    suscritos: {type: [userSchema],  default: null}
+    coordenadaX:{ type: Number, default: [0, 0] },
+    coordenadaY: { type: Number, default: [0, 0] }
 });
 
 const Incidencia = mongoose.model('Incidencia', incidenciaSchema);

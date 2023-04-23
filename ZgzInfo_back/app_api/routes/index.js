@@ -23,12 +23,8 @@ router
   .get(ctrlIncidencias.incidenciasLista);
 
 router
-    .route('/api/incidencias')
-    .get(ctrlIncidencias.incidencias);
-router
-  .route('/api/incidencias/:calle')
-  .get(ctrlIncidencias.incidenciasLisatCalle);
-
+    .route('/api/getIndicencias/:id')
+    .get(ctrlIncidencias.getIndicenciasByid);
 router
   .route('/api/mapa')
   .get(ctrlIncidencias.incidenciasMapa);
