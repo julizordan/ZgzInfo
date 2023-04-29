@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
-const Comentario = require('./Comentarios');
-const usuario = require('./Usuario');
 
 const foroSchema = new mongoose.Schema({
-    titulo: { type: String, required: true, unique:true },
+    id: {type: String, required: true, unique: true},
     tipo: { type: String, required: true },
-    suscritos : [usuario],
-    comentarios: [Comentario]
+    titulo: { type: String, required: true, unique:true },
+    comentarios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comentarios', default: []}]
 });
 
 const Foro = mongoose.model('Foro', foroSchema);

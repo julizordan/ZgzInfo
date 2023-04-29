@@ -1,63 +1,115 @@
 const mongoose = require('mongoose');
 const Foro = mongoose.model('Foro');
-const User = mongoose.model('Usuario');
+const Usuario = mongoose.model('Usuario');
 
-//GET /api/incidencia/{incidenciaId}/foros
-
-//POST /api/incidencias/{incidenciaId}/foros
-// POST /api/register
-
-const listarForos =  async (req, res) => {
+//http://localhost:3000/api/getForosByid/17401
+const getForosByid = async (req, res) => {
     try {
-        const userId = req.params.userId;
-    
-        // Buscar el usuario por su ID
-        const usuario = await User.findById(userId);
-        if (!usuario) {
-          return res.status(404).send({ message: 'Usuario no encontrado' });
-        }
-
-        // Buscamos los foros en los que está suscrito el usuario
-        const foros = await Foro.find({ suscritos: usuario });
-
-        // Devolvemos los foros encontrados
-        res.send(foros);
-
-      } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: 'Error al buscar los foros suscritos del usuario' });
-      }   
-};
-
-const suscribeForo =  async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const foroId = req.params.foroId;
-        // Buscar el usuario por su ID
-        const usuario = await User.findById(userId);
-        if (!usuario) {
-          return res.status(404).send({ message: 'Usuario no encontrado' });
-        }
-        // Buscar el foro por su titulo que se su id
-        const foro = await Foro.findById(foroId);
+        const foro = await Foro.find({id: req.params.id});
         if (!foro) {
-          return res.status(404).send({ message: 'Usuario no encontrado' });
+            return res.status(404).send({message: 'Foro no encontrado'});
         }
-
-        // Agregamos al usuario a la lista de suscritos del foro
-        foro.suscritos.push(usuario);
-        await foro.save();
-        // Devolvemos el foro actualizado como respuesta de la solicitud
         res.send(foro);
-
-      } catch (error) {
+    } catch (error) {
         console.error(error);
-        res.status(500).send({ message: 'Error al buscar los foros suscritos del usuario' });
-    }   
+        res.status(500).send({message: 'Error al obtener el foro'});
+    }
 };
+//POST http://localhost:3000/api/suscribirForo
+/*
+{
+  "email": "opalacin@gmail.com",
+  "foro": "17373"
+}
+ */
+const suscribirForo =  async (req, res) => {
+    const { email, foro } = req.body;
+    try {
+        console.log(foro);
+        // Buscar foro por su ID
+        const foroEncontrado = await Foro.findOne({ id: foro });
+        if (!foroEncontrado) {
+            return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+        }
+        // Buscar el usuario por su email
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+        // Verificar si el usuario ya está suscrito a la incidencia
+        if (usuario.foro.includes(foroEncontrado._id)) {
+            return res.status(400).json({ mensaje: 'El usuario ya está suscrito a este foro' });
+        }
+        // Agregar la incidencia a la lista de incidencias suscritas del usuario
+        usuario.foro.push(foroEncontrado._id);
+        await usuario.save();
+        return res.json({ mensaje: 'Suscripción exitosa' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+};
+
+//http://localhost:3000/api/getsuscripcionesByUsuario/opalacin@gmail.com
+const getForosUsuario = async (req, res) => {
+    try {
+        // Buscar el usuario por su email
+        const usuario = await Usuario.findOne({ email: req.params.email});
+        if (!usuario) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+        let listaForos = [];
+        tam = usuario.foro.length;
+        for(let i = 0; i < tam; i++){
+            let foro = await Foro.findById(usuario.foro[i]);
+            listaForos.push(foro);
+        }
+        res.send(listaForos);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+};
+
+//POST http://localhost:3000/api/suscribirForo
+/*
+{
+  "email": "opalacin@gmail.com",
+  "foro": "17373"
+}
+ */
+/*const comentarForo =  async (req, res) => {
+    const { email, foro } = req.body;
+    try {
+        console.log(foro);
+        // Buscar foro por su ID
+        const foroEncontrado = await Foro.findOne({ id: foro });
+        if (!foroEncontrado) {
+            return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+        }
+        // Buscar el usuario por su email
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+        // Verificar si el usuario ya está suscrito a la incidencia
+        if (usuario.foro.includes(foroEncontrado._id)) {
+            return res.status(400).json({ mensaje: 'El usuario ya está suscrito a este foro' });
+        }
+        // Agregar la incidencia a la lista de incidencias suscritas del usuario
+        usuario.foro.push(foroEncontrado._id);
+        await usuario.save();
+        return res.json({ mensaje: 'Suscripción exitosa' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+};*/
 
 module.exports = {
-    listarForos,
-    suscribeForo
+    suscribirForo,
+    getForosUsuario,
+    getForosByid
 };
   

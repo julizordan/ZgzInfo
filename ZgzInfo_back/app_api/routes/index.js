@@ -5,46 +5,53 @@ const ctrlUsuarios = require('../controllers/users');
 const ctrlIncidencias = require('../controllers/incidencias');
 const ctrlForos = require('../controllers/foro');
 
-// Usuarios
+/*
+ * Usuarios
+ */
 router
-  .route('/api/register')
-  .post(ctrlUsuarios.userCreate);
+    .route('/api/register')
+    .post(ctrlUsuarios.userCreate);
 
 router
-  .route('/api/register/:userId')
-  .put(ctrlUsuarios.userUpdate);
+    .route('/api/register/:userId')
+    .put(ctrlUsuarios.userUpdate);
 
 router
-  .route('/api/login/:userId')
-  .get(ctrlUsuarios.userLogin);
+    .route('/api/login/:userId')
+    .get(ctrlUsuarios.userLogin);
+
+/*
+ * Incidencias
+ */
 
 router
-  .route('/api/incidenciasLista')
-  .get(ctrlIncidencias.incidenciasLista);
-
+    .route('/api/incidenciasLista')
+    .get(ctrlIncidencias.incidenciasLista);
 router
     .route('/api/getIndicencias/:id')
     .get(ctrlIncidencias.getIndicenciasByid);
 router
-  .route('/api/mapa')
-  .get(ctrlIncidencias.incidenciasMapa);
-
+    .route('/api/suscribirIncidencia')
+    .post(ctrlIncidencias.suscribirIncidencia);
 router
-  .route('/api/mapa/:tipo')
-  .get(ctrlIncidencias.incidenciasMapaTipo);
-
+    .route('/api/getIncidenciasByTipo/:tipo')
+    .get(ctrlIncidencias.getIncidenciasByTipo);
 router
-  .route('/api/incidencias/:incidenciaId/:userId')
-  .post(ctrlIncidencias.suscribirIncidencia);
+    .route('/api/getsuscripcionesByUsuario/:email')
+    .get(ctrlIncidencias.getIncidenciasUsuario);
 
+/*
+ * Foro
+ */
 router
-  .route('/api/:userId/foros')
-  .get(ctrlForos.listarForos);
-
+    .route('/api/suscribirForo')
+    .post(ctrlForos.suscribirForo);
 router
-  .route('/api/:userId/:foroId')
-  .post(ctrlForos.suscribeForo);
-
+    .route('/api/getForosUsuario/:email')
+    .get(ctrlForos.getForosUsuario);
+router
+    .route('/api/getForosByid/:id')
+    .get(ctrlForos.getForosByid);
 
 module.exports = router;
 
