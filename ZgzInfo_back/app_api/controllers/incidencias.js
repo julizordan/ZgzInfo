@@ -10,15 +10,22 @@ const incidenciasLista = async (req, res) => {
         const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia.json?');
         const tam = Object.keys(response.data.result).length;
         const listaIncidencias = [];
-        let inserted = false;
+        const listaForos = [];
+        let insertedI = false;
+        let insertedF = false;
         for (let i = 0; i < tam; i++) {
-            const newForo = new Foro({
+            const getForo = new Foro({
                 id: response.data.result[i].id,
                 titulo: response.data.result[i].title,
                 tipo: response.data.result[i].tipo.title,
                 comentarios: null
             });
-            await newForo.save();
+            listaForos.push(getForo);
+            const newForo = await Foro.findOne({id: getForo.id});
+            if (!newForo) {
+                await getForo.save();
+                insertedF = true;
+            }
             const getIncidencia = new Incidencia({
                 id: response.data.result[i].id,
                 tipo: response.data.result[i].tipo.title,
@@ -29,22 +36,21 @@ const incidenciasLista = async (req, res) => {
                 calle: response.data.result[i].calle,
                 coordenadaX: response.data.result[i].geometry?.coordinates[0] || null,
                 coordenadaY: response.data.result[i].geometry?.coordinates[1] || null,
-                foro: newForo
+                foro: getForo
             });
             listaIncidencias.push(getIncidencia);
             const newIncidencia = await Incidencia.findOne({id: getIncidencia.id});
             if (!newIncidencia) {
                 await getIncidencia.save();
-                inserted = true;
+                insertedI = true;
             }
         }
-        if (listaIncidencias.length || inserted) {
+        if (listaIncidencias.length || insertedI || insertedF) {
             console.log(`Se han guardado ${listaIncidencias.length} incidencias en la base de datos`);
-            res.send(listaIncidencias);
         } else {
             console.log(`No se ha insertado ninguna nueva incidencia en la base de datos`);
-            res.send([]);
         }
+        res.send(listaIncidencias);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
