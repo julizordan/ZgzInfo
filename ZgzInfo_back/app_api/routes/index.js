@@ -4,6 +4,7 @@ var router = express.Router();
 const ctrlUsuarios = require('../controllers/users');
 const ctrlIncidencias = require('../controllers/incidencias');
 const ctrlForos = require('../controllers/foro');
+const ctrlAdmin = require('../controllers/admin');
 
 /*
  * Usuarios
@@ -53,5 +54,32 @@ router
     .route('/api/getForosByid/:id')
     .get(ctrlForos.getForosByid);
 
+/*
+ * Admin
+ */
+router
+    .route('/api/admin/listadoUsuarios')
+    .get(ctrlAdmin.listarUsuarios);
+router
+    .route('/api/admin/:userId/bloquear')
+    .put(ctrlAdmin.bloquearUsuario);
+router
+    .route('/api/admin/:userId/listadoMensajes')
+    .get(ctrlAdmin.listadoMensajes);
+router
+    .route('/api/admin/:userId/eliminarMensaje')
+    .delete(ctrlAdmin.eliminarMensaje);
+router
+    .route('/api/admin/listadoForos')
+    .get(ctrlAdmin.listarForos);
+router
+    .route('/api/admin/:idForo/eliminar')
+    .delete(ctrlAdmin.eliminarForo);
+router
+    .route('/api/admin/grafica')
+    .get(ctrlAdmin.numeroIncidenciasTipo);
+
+
+    
 module.exports = router;
 
