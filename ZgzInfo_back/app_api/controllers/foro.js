@@ -107,9 +107,29 @@ const getForosUsuario = async (req, res) => {
     }
 };*/
 
+//GET  /api/grafica/NumForosTipo
+const NumForosTipo = async (req, res) => {
+        try {
+          const usuarios = await Usuario.find().populate('foro');
+          const suscripcionesPorTipo = { "Cortes de Agua": 0, "Cortes de Tráfico": 0, "Afecciones Importantes": 0 };
+      
+          usuarios.forEach(usuario => {
+            usuario.foro.forEach(foro => {
+              suscripcionesPorTipo[foro.tipo]++;
+            });
+          });
+      
+          res.json(suscripcionesPorTipo);
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Error al obtener el número de usuarios suscritos por tipo de foro' });
+        }
+  };
+
 module.exports = {
     suscribirForo,
     getForosUsuario,
-    getForosByid
+    getForosByid,
+    NumForosTipo
 };
   

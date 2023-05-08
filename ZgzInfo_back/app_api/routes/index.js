@@ -20,6 +20,16 @@ router
 router
     .route('/api/login/:userId')
     .get(ctrlUsuarios.userLogin);
+/*
+ * Graficas Usuarios
+ */
+router
+    .route('/api/grafica/NumUsuariosIncidencia')
+    .get(ctrlUsuarios.NumUsuariosIncidencia);
+router
+    .route('/api/grafica/NumForosTipo')
+    .get(ctrlForos.NumForosTipo);
+
 
 /*
  * Incidencias
@@ -75,9 +85,21 @@ router
 router
     .route('/api/admin/:idForo/eliminar')
     .delete(ctrlAdmin.eliminarForo);
+/*
+ * Graficas Admin
+ */
 router
-    .route('/api/admin/grafica')
+    .route('/api/admin/grafica/numeroIncidenciasTipo')
     .get(ctrlAdmin.numeroIncidenciasTipo);
+router
+    .route('/api/admin/grafica/NumIncidenciasHoy')
+    .get(ctrlAdmin.NumIncidenciasHoy);
+router
+    .route('/api/admin/grafica/NumUsuariosRegistrados')
+    .get(ctrlAdmin.NumUsuariosRegistrados);
+router
+    .route('/api/admin/grafica/NumUsuariosBloqueados')
+    .get(ctrlAdmin.NumUsuariosBloqueados);
 
 
     

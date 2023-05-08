@@ -123,22 +123,88 @@ const eliminarForo = async (req, res) => {
 
 }
 
-//GET  /api/admin/grafica
+
+
+
+//GET  /api/admin/grafica/numeroIncidenciasTipo
 const numeroIncidenciasTipo = async (req, res) => {
-    try {
-        const incidenciasPorTipo = await Incidencia.aggregate([
-          {
-            $group: {
-              _id: "$tipo",
-              count: { $sum: 1 }
-            }
+  try {
+      const incidenciasPorTipo = await Incidencia.aggregate([
+        {
+          $group: {
+            _id: "$tipo",
+            count: { $sum: 1 }
           }
-        ]);
-        res.status(200).json(incidenciasPorTipo);
-      } catch (error) {
-        res.status(500).json({ error: "Error al obtener las incidencias por tipo." });
-      }
+        }
+      ]);
+      res.status(200).json(incidenciasPorTipo);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las incidencias por tipo." });
+    }
+}
+
+
+//GET  /api/admin/grafica/NumIncidenciasHoy
+const NumIncidenciasHoy = async (req, res) => {
+    try {
+      const hoy = new Date();
+      const numTotalIncidencias = await Incidencia.countDocuments();
+      const numIncidenciasFinHoy = await Incidencia.countDocuments({ fin: { $gte: hoy.setHours(0, 0, 0, 0), $lt: hoy.setHours(23, 59, 59, 999) } });
+  
+      res.status(200).json({ numTotalIncidencias, numIncidenciasFinHoy });
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener el número de incidencias y las incidencias con fecha de fin de hoy." });
+    }
+};
+
+//GET  /api/admin/grafica/numUsuariosRegistrados
+const NumUsuariosRegistrados = async (req, res) => {
+  try {
+    const mesActual = new Date().toLocaleString('es-ES', { month: 'long' });
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const finMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const numUsuarios = await Usuario.countDocuments({
+      createdAt: { $gte: inicioMes, $lte: finMes }
+    });
+
+    const respuesta = {
+      mes: mesActual,
+      numUsuarios: numUsuarios
+    };
+
+    res.status(200).json(respuesta);
+
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener el número de usuarios registrados este mes." });
   }
+};
+
+  
+
+//GET  /api/admin/grafica/numUsuariosBloqueados
+const NumUsuariosBloqueados = async (req, res) => {
+    try {
+      const mesActual = new Date().toLocaleString('es-ES', { month: 'long' });
+  
+      const numUsuarios = await Usuario.countDocuments({});
+      const numUsuariosBloqueados = await Usuario.countDocuments({ bloqueado: true });
+  
+      const respuesta = {
+        mes: mesActual,
+        numUsuarios: numUsuarios,
+        numUsuariosBloqueados: numUsuariosBloqueados
+      };
+  
+      res.status(200).json(respuesta);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener el número de usuarios." });
+    }
+};
+   
+
+
+  
 
   
   module.exports = 
@@ -148,5 +214,8 @@ const numeroIncidenciasTipo = async (req, res) => {
     eliminarMensaje,
     listarForos,
     eliminarForo,
-    numeroIncidenciasTipo
+    numeroIncidenciasTipo,
+    NumIncidenciasHoy,
+    NumUsuariosRegistrados,
+    NumUsuariosBloqueados
   };

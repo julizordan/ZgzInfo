@@ -93,8 +93,41 @@ const userLogin = async (req, res) => {
         });
 };
 
+
+
+
+//GET  /api/grafica/NumUsuariosIncidencia
+const NumUsuariosIncidencia = async (req, res) => {
+    try {
+      const numUsuariosIncidencia = await Usuario.aggregate([
+        {
+          $lookup: {
+            from: "incidencias",
+            localField: "incidencia",
+            foreignField: "_id",
+            as: "incidencias"
+          }
+        },
+        {
+          $unwind: "$incidencias"
+        },
+        {
+          $group: {
+            _id: "$incidencias.tipo",
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+      res.status(200).json(numUsuariosIncidencia);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener el número de usuarios por incidencia." });
+    }
+};
+
+
 module.exports = {
     userCreate,
     userUpdate,
-    userLogin
+    userLogin,
+    NumUsuariosIncidencia
 };
