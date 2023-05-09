@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Foro = mongoose.model('Foro');
 const Usuario = mongoose.model('Usuario');
+const Comentario = mongoose.model('Comentario');
 
 //http://localhost:3000/api/getForosByid/17401
 const getForosByid = async (req, res) => {
@@ -29,7 +30,7 @@ const suscribirForo =  async (req, res) => {
         // Buscar foro por su ID
         const foroEncontrado = await Foro.findOne({ id: foro });
         if (!foroEncontrado) {
-            return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+            return res.status(404).json({ mensaje: 'Foro no encontrado' });
         }
         // Buscar el usuario por su email
         const usuario = await Usuario.findOne({ email });
@@ -72,40 +73,49 @@ const getForosUsuario = async (req, res) => {
     }
 };
 
-//POST http://localhost:3000/api/suscribirForo
+//POST http://localhost:3000/api/comentarForo
 /*
 {
-  "email": "opalacin@gmail.com",
-  "foro": "17373"
+  "foro": "17373",
+  "comentario": "me ha encantado",
+  "email": "javi23@gmail.com"
 }
  */
-/*const comentarForo =  async (req, res) => {
-    const { email, foro } = req.body;
+const comentarForo = async (req, res) => {
+    const { foro, comentario, email } = req.body;
     try {
-        console.log(foro);
         // Buscar foro por su ID
         const foroEncontrado = await Foro.findOne({ id: foro });
         if (!foroEncontrado) {
-            return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+            return res.status(404).json({ mensaje: 'Foro no encontrado' });
         }
         // Buscar el usuario por su email
         const usuario = await Usuario.findOne({ email });
         if (!usuario) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         }
-        // Verificar si el usuario ya está suscrito a la incidencia
-        if (usuario.foro.includes(foroEncontrado._id)) {
-            return res.status(400).json({ mensaje: 'El usuario ya está suscrito a este foro' });
+        // Crear un nuevo comentario
+        const nuevoComentario = new Comentario({
+            usuario: usuario,
+            comentario: comentario
+        });
+        await nuevoComentario.save();
+        // Actualizar la lista de comentarios del foro
+        if (foroEncontrado.comentarios) {
+            foroEncontrado.comentarios.push(nuevoComentario._id);
+        } else {
+            foroEncontrado.comentarios = [nuevoComentario._id];
         }
-        // Agregar la incidencia a la lista de incidencias suscritas del usuario
-        usuario.foro.push(foroEncontrado._id);
-        await usuario.save();
-        return res.json({ mensaje: 'Suscripción exitosa' });
+        await foroEncontrado.save();
+        // Devolver una respuesta exitosa
+        return res.json({ mensaje: 'Comentario creado exitosamente' });
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
     }
-};*/
+};
+
+
 
 //GET  /api/grafica/NumForosTipo
 const NumForosTipo = async (req, res) => {
@@ -130,6 +140,7 @@ module.exports = {
     suscribirForo,
     getForosUsuario,
     getForosByid,
-    NumForosTipo
+    NumForosTipo,
+    comentarForo
 };
   

@@ -63,6 +63,9 @@ router
 router
     .route('/api/getForosByid/:id')
     .get(ctrlForos.getForosByid);
+router
+    .route('/api/comentarForo')
+    .post(ctrlForos.comentarForo);
 
 /*
  * Admin
@@ -85,6 +88,7 @@ router
 router
     .route('/api/admin/:idForo/eliminar')
     .delete(ctrlAdmin.eliminarForo);
+
 /*
  * Graficas Admin
  */
