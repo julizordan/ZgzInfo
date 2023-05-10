@@ -3,17 +3,32 @@ const Foro = mongoose.model('Foro');
 const Usuario = mongoose.model('Usuario');
 const Comentario = mongoose.model('Comentario');
 
-//http://localhost:3000/api/getForosByid/17401
+//http://localhost:3000/api/getForosByid/17373
 const getForosByid = async (req, res) => {
     try {
-        const foro = await Foro.find({id: req.params.id});
+        const foro = await Foro.findOne({ id: req.params.id }).populate({
+            path: "comentarios",
+            populate: { path: "usuario" },
+        });
         if (!foro) {
-            return res.status(404).send({message: 'Foro no encontrado'});
+            return res.status(404).send({ message: "Foro no encontrado" });
         }
-        res.send(foro);
+        const comentarios = foro.comentarios.map((comentario) => {
+            return {
+                usuario: comentario.usuario.email,
+                comentario: comentario.comentario,
+            };
+        });
+        const response = {
+            id: foro.id,
+            tipo: foro.tipo,
+            titulo: foro.titulo,
+            comentarios: comentarios,
+        };
+        res.send(response);
     } catch (error) {
         console.error(error);
-        res.status(500).send({message: 'Error al obtener el foro'});
+        res.status(500).send({ message: "Error al obtener el foro" });
     }
 };
 //POST http://localhost:3000/api/suscribirForo
