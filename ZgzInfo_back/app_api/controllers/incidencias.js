@@ -45,7 +45,7 @@ const incidenciasLista = async (req, res) => {
                 insertedI = true;
             }
         }
-        if (listaIncidencias.length || insertedI || insertedF) {
+        if (insertedI || insertedF) {
             console.log(`Se han guardado ${listaIncidencias.length} incidencias en la base de datos`);
         } else {
             console.log(`No se ha insertado ninguna nueva incidencia en la base de datos`);
