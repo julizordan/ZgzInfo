@@ -12,13 +12,18 @@ const userCreate = async (req, res) => {
     try {
         const usuarioEncontrado = await Usuario.findOne({email: email});
         if (usuarioEncontrado) {
-            return res.status(404).json({mensaje: 'usuario ya registrado encontrada'});
+            return res.status(404).json({mensaje: 'Usuario ya registrado encontrado'});
         }
         const newUser = new Usuario({
             email: email,
             password: password
         });
-        await newUser.save();
+        // Validar si se está probando en Swagger
+        if (!req.headers['user-agent'].includes('swagger')) {
+            await newUser.save();
+            console.log(req.url);
+        }
+        res.status(200).json({mensaje: 'Usuario creado exitosamente'});
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -26,31 +31,24 @@ const userCreate = async (req, res) => {
 };
 
 
-// PUT /api/register/:userId
+// PUT /api/register/:email
 const userUpdate = async (req, res) => {
-    console.log(`id ${req.params.userId}`);
+    console.log(`email ${req.params.email}`);
     console.log(`password ${req.body.password}`);
-    if (!req.params.userId) {
-        res.status(404).json({
-            "message": "Not found, userId is required"
-        });
-        return;
+    if (!req.params.email) {
+        return res.status(404).json({mensaje: 'se requiere un email'});
     }
     //const user = await user.findById(req.params.userId).exec();
-    Usuario.findById(req.params.userId)
+    Usuario.findOne({email: req.params.email})
         .exec()
         .then(user => {
             if (!user) {
                 console.log('Usuario no encontrado');
-                res.status(404).json({
-                    "message": "userId not found"
-                });
-                return;
+                return res.status(404).json({mensaje: 'Usuario no encontrado'});
             } else {
                 user.password = req.body.password;
-                console.log(`hemos cambiado la contraseña ${user.password}`);
-                const savedUser = user.save();
-                res.status(200).json(savedUser);
+                user.save();
+                return res.status(200).json({mensaje: `hemos cambiado la contraseña ${user.password}`});
             }
         })
         .catch(err => {
@@ -61,28 +59,27 @@ const userUpdate = async (req, res) => {
         });
 };
 
-
-// GET /api/login/:userId
+// POST /api/login
 const userLogin = async (req, res) => {
-    console.log(`id ${req.params.userId}`);
-    if (!req.params.userId) {
-        res.status(404).json({
-            "message": "Not found, userId is required"
+    const {email, password} = req.body;
+    console.log(email);
+    console.log(password);
+    if (!email || !password) {
+        return res.status(404).json({
+            "message": "Email y password requeridos"
         });
-        return;
     }
-    Usuario.findById(req.params.userId)
+    Usuario.findOne({email: req.body.email, password: req.body.password})
         .exec()
         .then(user => {
             if (!user) {
                 console.log('Usuario no encontrado');
-                res.status(404).json({
-                    "message": "userId not found"
+                return res.status(404).json({
+                    "message": "Usuario no encontrado"
                 });
-                return;
             } else {
-                console.log('Usuario  encontrado');
-                res.status(200).json(user)
+                console.log('Usuario encontrado');
+                return res.status(200).json({mensaje: 'Usuario encontrado'});
             }
         })
         .catch(err => {
@@ -92,9 +89,6 @@ const userLogin = async (req, res) => {
             });
         });
 };
-
-
-
 
 //GET  /api/grafica/NumUsuariosIncidencia
 const NumUsuariosIncidencia = async (req, res) => {

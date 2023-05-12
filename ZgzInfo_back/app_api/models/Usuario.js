@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const usuarioSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true, minLength: 6},
-    bloqueado:{type: Boolean,default:false},
+    bloqueado: {type: Boolean, default: false},
     incidencia: [{type: mongoose.Schema.Types.ObjectId, ref: 'Incidencia', default: []}],
     foro: [{type: mongoose.Schema.Types.ObjectId, ref: 'Foro', default: []}]
 });

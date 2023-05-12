@@ -5,6 +5,7 @@ const Foro = mongoose.model('Foro');
 const Usuario = mongoose.model('Usuario');
 
 // GET /api/incidenciasLista
+
 const incidenciasLista = async (req, res) => {
     try {
         const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia.json?');
@@ -93,27 +94,27 @@ const getIncidenciasByTipo = async (req, res) => {
 }
  */
 const suscribirIncidencia = async (req, res) => {
-    const { email, incidencia } = req.body;
+    const {email, incidencia} = req.body;
     try {
         console.log(incidencia);
         // Buscar la incidencia por su ID
-        const incidenciaEncontrada = await Incidencia.findOne({ id: incidencia });
+        const incidenciaEncontrada = await Incidencia.findOne({id: incidencia});
         if (!incidenciaEncontrada) {
-            return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+            return res.status(404).json({mensaje: 'Incidencia no encontrada'});
         }
         // Buscar el usuario por su email
-        const usuario = await Usuario.findOne({ email });
+        const usuario = await Usuario.findOne({email});
         if (!usuario) {
-            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+            return res.status(404).json({mensaje: 'Usuario no encontrado'});
         }
         // Verificar si el usuario ya está suscrito a la incidencia
         if (usuario.incidencia.includes(incidenciaEncontrada._id)) {
-            return res.status(400).json({ mensaje: 'El usuario ya está suscrito a esta incidencia' });
+            return res.status(400).json({mensaje: 'El usuario ya está suscrito a esta incidencia'});
         }
         // Agregar la incidencia a la lista de incidencias suscritas del usuario
         usuario.incidencia.push(incidenciaEncontrada._id);
         await usuario.save();
-        return res.json({ mensaje: 'Suscripción exitosa' });
+        return res.json({mensaje: 'Suscripción exitosa'});
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
@@ -123,13 +124,13 @@ const suscribirIncidencia = async (req, res) => {
 const getIncidenciasUsuario = async (req, res) => {
     try {
         // Buscar el usuario por su email
-        const usuario = await Usuario.findOne({ email: req.params.email});
+        const usuario = await Usuario.findOne({email: req.params.email});
         if (!usuario) {
-            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+            return res.status(404).json({mensaje: 'Usuario no encontrado'});
         }
         let listaIncidencias = [];
         tam = usuario.incidencia.length;
-        for(let i = 0; i < tam; i++){
+        for (let i = 0; i < tam; i++) {
             let incidencia = await Incidencia.findById(usuario.incidencia[i]);
             listaIncidencias.push(incidencia);
         }
