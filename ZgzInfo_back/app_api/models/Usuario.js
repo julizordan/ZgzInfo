@@ -5,7 +5,9 @@ const usuarioSchema = new mongoose.Schema({
     password: {type: String, required: true, minLength: 6},
     bloqueado: {type: Boolean, default: false},
     incidencia: [{type: mongoose.Schema.Types.ObjectId, ref: 'Incidencia', default: []}],
-    foro: [{type: mongoose.Schema.Types.ObjectId, ref: 'Foro', default: []}]
+    tipo_incidencia: { type: [String], required: false, default: [] },
+    foro: { type: [String], required: false, default: [] },
+    fechaRegistro: {type: Date, default: Date.now}
 });
 
 const Usuario = mongoose.model('Usuario', usuarioSchema);

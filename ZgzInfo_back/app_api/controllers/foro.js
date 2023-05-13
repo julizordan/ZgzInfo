@@ -53,13 +53,13 @@ const suscribirForo =  async (req, res) => {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         }
         // Verificar si el usuario ya está suscrito a la incidencia
-        if (usuario.foro.includes(foroEncontrado._id)) {
+        if (usuario.foro.includes(foroEncontrado.id)) {
             return res.status(400).json({ mensaje: 'El usuario ya está suscrito a este foro' });
         }
         // Agregar la incidencia a la lista de incidencias suscritas del usuario
-        usuario.foro.push(foroEncontrado._id);
+        usuario.foro.push(foroEncontrado.id);
         await usuario.save();
-        return res.json({ mensaje: 'Suscripción exitosa' });
+        return res.json({ mensaje: 'Suscripción exitosa', usuario});
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
@@ -77,10 +77,10 @@ const getForosUsuario = async (req, res) => {
         let listaForos = [];
         tam = usuario.foro.length;
         for(let i = 0; i < tam; i++){
-            let foro = await Foro.findById(usuario.foro[i]);
+            let foro = await Foro.find({id: usuario.foro[i]});
             listaForos.push(foro);
         }
-        res.send(listaForos);
+        return res.status(200).json(usuario.foro);
 
     } catch (error) {
         console.error(error);

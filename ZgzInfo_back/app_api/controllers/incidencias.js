@@ -5,7 +5,6 @@ const Foro = mongoose.model('Foro');
 const Usuario = mongoose.model('Usuario');
 
 // GET /api/incidenciasLista
-
 const incidenciasLista = async (req, res) => {
     try {
         const response = await axios.get('https://www.zaragoza.es/sede/servicio/via-publica/incidencia.json?');
@@ -86,18 +85,19 @@ const getIncidenciasByTipo = async (req, res) => {
         res.status(500).send({message: 'Error al obtener la incidencia'});
     }
 };
+
 //POST http://localhost:3000/api/suscribirIncidencia
 /*
 {
   "email": "opalacin@gmail.com",
-  "incidencia": "17373"
+  "incidencia": "Cortes de Tráfico"
 }
  */
-const suscribirIncidencia = async (req, res) => {
+const suscribirIncidenciaById = async (req, res) => {
     const {email, incidencia} = req.body;
     try {
         console.log(incidencia);
-        // Buscar la incidencia por su ID
+        // Buscar la incidencia por su tipo
         const incidenciaEncontrada = await Incidencia.findOne({id: incidencia});
         if (!incidenciaEncontrada) {
             return res.status(404).json({mensaje: 'Incidencia no encontrada'});
@@ -107,19 +107,64 @@ const suscribirIncidencia = async (req, res) => {
         if (!usuario) {
             return res.status(404).json({mensaje: 'Usuario no encontrado'});
         }
-        // Verificar si el usuario ya está suscrito a la incidencia
-        if (usuario.incidencia.includes(incidenciaEncontrada._id)) {
-            return res.status(400).json({mensaje: 'El usuario ya está suscrito a esta incidencia'});
+        // Verificar si el usuario ya está suscrito al tipo incidencia
+        if (usuario.incidencia.includes(incidenciaEncontrada.tipo)) {
+            return res.status(400).json({mensaje: 'El usuario ya está suscrito a este tipo de incidencia'});
         }
         // Agregar la incidencia a la lista de incidencias suscritas del usuario
         usuario.incidencia.push(incidenciaEncontrada._id);
         await usuario.save();
-        return res.json({mensaje: 'Suscripción exitosa'});
+        return res.json({mensaje: 'Suscripción exitosa', usuario});
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
     }
 };
+//POST http://localhost:3000/api/suscribirIncidencia
+/*
+{
+  "email": "opalacin@gmail.com",
+  "tipo_incidencia": "Cortes de Tráfico"
+}
+ */
+const suscribirIncidenciaByTipo = async (req, res) => {
+    const { email, tipo_incidencia } = req.body;
+    try {
+        // Verificar que el tipo de incidencia es válido
+        const tiposValidos = ["Afecciones Importantes", "Cortes de Tráfico", "Cortes de Agua"];
+        if (!tiposValidos.includes(tipo_incidencia)) {
+            return res.status(400).json({ mensaje: "Tipo de incidencia no válido" });
+        }
+        // Buscar las incidencias por su tipo
+        const incidenciasEncontradas = await Incidencia.find({ tipo: tipo_incidencia });
+        if (incidenciasEncontradas.length === 0) {
+            return res.status(404).json({ mensaje: "Incidencias no encontradas" });
+        }
+        // Buscar el usuario por su email
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) {
+            return res.status(404).json({ mensaje: "Usuario no encontrado" });
+        }
+        // Verificar si el usuario ya está suscrito a alguna de las incidencias
+        const estaSuscrito = incidenciasEncontradas.some(incidencia => usuario.tipo_incidencia.includes(incidencia.tipo.toString()));
+        if (estaSuscrito) {
+            return res.status(400).json({ mensaje: "El usuario ya está suscrito a este tipo de incidencia" });
+        }
+        // Agregar las incidencias a la lista de incidencias suscritas del usuario, eliminando duplicados
+        const nuevasIncidencias = incidenciasEncontradas.map(incidencia => incidencia.tipo.toString());
+        const incidenciasUnicas = [...new Set([...usuario.tipo_incidencia, ...nuevasIncidencias])];
+        usuario.tipo_incidencia = incidenciasUnicas.filter((value, index, self) => {
+            return self.indexOf(value) === index;
+        });
+        await usuario.save();
+        return res.status(200).json({ mensaje: "Suscripción exitosa", usuario });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+};
+
+
 //http://localhost:3000/api/getsuscripcionesByUsuario/opalacin@gmail.com
 const getIncidenciasUsuario = async (req, res) => {
     try {
@@ -145,7 +190,8 @@ module.exports = {
     incidenciasLista,
     getIndicenciasByid,
     getIncidenciasByTipo,
-    suscribirIncidencia,
+    suscribirIncidenciaById,
+    suscribirIncidenciaByTipo,
     getIncidenciasUsuario
 };
 
