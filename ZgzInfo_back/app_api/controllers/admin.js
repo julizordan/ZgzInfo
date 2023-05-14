@@ -44,19 +44,18 @@ const bloquearUsuario = async (req, res) => {
     }
 }
 
-//GET  /api/admin/{userId}/listadoMensajes
+//GET  /api/admin/listadoMensajes/{email}
 const listadoMensajes = async (req, res) => {
-    if (!req.params.userId) {
+    if (!req.params.email) {
         res.status(404).json({
             "message": "Not found, userId is required"
         });
         return;
     }
-
     try {
-        const usuario = await Usuario.findById(req.params.userId);
-        const comentarios = await Comentario.find({usuario: req.params.userId});
-        return res.json(comentarios);
+        const usuario = await Usuario.findOne({email: req.params.email});
+        const comentarios = await Comentario.find({ usuario: usuario._id }).select('comentario -_id');
+        return res.status(200).json(comentarios);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: 'Hubo un error al obtener los mensajes del usuario'});
@@ -64,26 +63,23 @@ const listadoMensajes = async (req, res) => {
 
 }
 
-// DELETE /api/admin/{userId}/eliminarMensaje
+// DELETE /api/admin/eliminarMensaje/{email}
 const eliminarMensaje = async (req, res) => {
-    if (!req.params.userId) {
-        res.status(404).json({
+    if (!req.params.email) {
+        return res.status(404).json({
             "message": "Not found, userId is required"
         });
-        return;
     }
-
     try {
-        const usuario = await Usuario.findById(req.params.userId);
+        const usuario = await Usuario.find({email: req.params.email});
         // Eliminar todos los comentarios asociados al usuario
-        await Comentario.deleteMany({usuario: usuario._id});
-        res.status(200).json({message: 'Comentarios eliminados exitosamente'})
+        await Comentario.deleteMany({usuario: usuario.email});
+        return res.status(200).json({message: 'Comentarios eliminados exitosamente'})
 
     } catch (error) {
         console.error(error);
         res.status(500).json({message: 'Hubo un error al eliminar  mensajes del usuario'});
     }
-
 }
 
 //GET  /api/admin/listadoForos
@@ -98,7 +94,6 @@ const listarForos = async (req, res) => {
 }
 
 // DELETE  /api/admin/{idForo}/eliminar
-
 const eliminarForo = async (req, res) => {
     if (!req.params.idForo) {
         res.status(404).json({

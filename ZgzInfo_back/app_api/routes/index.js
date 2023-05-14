@@ -112,6 +112,16 @@ const ctrlAdmin = require('../controllers/admin');
  *         - id
  *         - tipo
  *         - titulo
+
+ *     Comentario:
+ *       type: object
+ *       properties:
+ *         usuario:
+ *           $ref: '#/components/schemas/Usuario'
+ *           description: El correo electrónico del usuario que escribió el comentario.
+ *         mensaje:
+ *           type: string
+ *           description: El mensaje del comentario.
  */
 
 /**
@@ -974,11 +984,100 @@ router
 router
     .route('/api/admin/bloquear/:email')
     .put(ctrlAdmin.bloquearUsuario);
+/**
+ * @swagger
+ * /api/admin/listadoMensajes/{email}:
+ *   get:
+ *     summary: Obtiene una lista de mensajes de un usuario dado su correo electrónico.
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: El correo electrónico del usuario del cual se quieren obtener los mensajes.
+ *     responses:
+ *       '200':
+ *         description: Lista de mensajes del usuario.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 example: "juan@gmail.com : Buen foro."
+ *       '404':
+ *         description: El usuario no fue encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Not found, email is required."
+ *       '500':
+ *         description: Hubo un error al obtener los mensajes del usuario.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Hubo un error al obtener los mensajes del usuario."
+ */
 router
-    .route('/api/admin/:userId/listadoMensajes')
+    .route('/api/admin/listadoMensajes/:email')
     .get(ctrlAdmin.listadoMensajes);
+/**
+ * @swagger
+ * /api/admin/eliminarMensaje/{email}:
+ *   delete:
+ *     summary: Elimina todos los comentarios de un usuario dado su correo electrónico.
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: El correo electrónico del usuario cuyos comentarios se quieren eliminar.
+ *     responses:
+ *       '200':
+ *         description: Comentarios eliminados exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Comentarios eliminados exitosamente."
+ *       '404':
+ *         description: El usuario no fue encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Not found, email is required."
+ *       '500':
+ *         description: Hubo un error al eliminar los comentarios del usuario.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Hubo un error al eliminar los comentarios del usuario."
+ */
 router
-    .route('/api/admin/:userId/eliminarMensaje')
+    .route('/api/admin/eliminarMensaje/:email')
     .delete(ctrlAdmin.eliminarMensaje);
 router
     .route('/api/admin/listadoForos')

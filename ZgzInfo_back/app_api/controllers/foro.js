@@ -7,7 +7,7 @@ const getForosByid = async (req, res) => {
     try {
         const foro = await Foro.findOne({ id: req.params.id }).populate({
             path: "comentarios",
-            populate: { path: "usuario" },
+            populate: { path: "usuario" }, // cambia "usuarios" por "usuario"
         });
         if (!foro) {
             return res.status(404).send({ message: "Foro no encontrado" });
@@ -150,19 +150,23 @@ const comentarForo = async (req, res) => {
         await nuevoComentario.save();
         // Actualizar la lista de comentarios del foro
         if (foroEncontrado.comentarios) {
-            foroEncontrado.comentarios.push(nuevoComentario.comentario);
+            foroEncontrado.comentarios.push(nuevoComentario._id);
         } else {
-            foroEncontrado.comentarios = [nuevoComentario.comentario];
+            foroEncontrado.comentarios = [nuevoComentario._id];
         }
         await foroEncontrado.save();
-        // Devolver una respuesta exitosa
-        return res.json({ mensaje: 'Comentario creado exitosamente', foroEncontrado });
+        // Obtener los comentarios en formato de texto
+        const comentarios = await Comentario.find({ _id: { $in: foroEncontrado.comentarios } }).populate('usuario');
+        const comentariosTexto = comentarios.map((comentario) => {
+            return `${comentario.usuario.email}: ${comentario.comentario}`;
+        });
+        // Devolver una respuesta exitosa con el foro y sus comentarios
+        return res.json({ mensaje: 'Comentario creado exitosamente', comentarios: comentariosTexto });
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
     }
 };
-
 
 
 //GET  /api/grafica/NumForosTipo
