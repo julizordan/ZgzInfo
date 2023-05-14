@@ -552,7 +552,7 @@ router
  *     get:
  *       tags:
  *         - Incidencias
- *       summary: Obtener las incidencias a las que está suscrito un usuario
+ *       summary: Obtener el tipo de incidencias a las que está suscrito un usuario
  *       parameters:
  *         - name: email
  *           in: path
@@ -562,7 +562,7 @@ router
  *             type: string
  *             format: email
  *           example:
- *             email: usuario1@gmail.com
+ *             email: javi23@gmail.com
  *       responses:
  *         '200':
  *           description: OK
@@ -571,7 +571,9 @@ router
  *               schema:
  *                 type: array
  *                 items:
- *                   $ref: '#/components/schemas/Incidencia'
+ *                   type: string
+ *                   example: "Cortes de Agua"
+ *
  *         '404':
  *           description: Usuario no encontrado
  *         '500':
