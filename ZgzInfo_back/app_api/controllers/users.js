@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Usuario = mongoose.model('Usuario');
+const Incidencia = mongoose.model('Incidencia');
 
 /*
 * POST /api/register
@@ -149,9 +150,27 @@ const NumUsuariosIncidencia = async (req, res) => {
     }
 };
 
+//GET  /api/grafica/numeroIncidenciasTipo
+const numeroIncidenciasTipo = async (req, res) => {
+  try {
+      const incidenciasPorTipo = await Incidencia.aggregate([
+          {
+              $group: {
+                  _id: "$tipo",
+                  count: {$sum: 1}
+              }
+          }
+      ]);
+      res.status(200).json(incidenciasPorTipo);
+  } catch (error) {
+      res.status(500).json({error: "Error al obtener las incidencias por tipo."});
+  }
+}
+
 module.exports = {
     userCreate,
     userUpdate,
     userLogin,
-    NumUsuariosIncidencia
+    NumUsuariosIncidencia,
+    numeroIncidenciasTipo
 };

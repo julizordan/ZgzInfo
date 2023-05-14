@@ -273,7 +273,9 @@ router
 router
     .route('/api/grafica/NumForosTipo')
     .get(ctrlForos.NumForosTipo);
-
+router
+    .route('/api/grafica/numeroIncidenciasTipo')
+    .get(ctrlUsuarios.numeroIncidenciasTipo);
 
 /*
  * Incidencias
