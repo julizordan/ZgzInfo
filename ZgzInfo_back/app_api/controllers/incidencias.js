@@ -168,24 +168,19 @@ const suscribirIncidenciaByTipo = async (req, res) => {
 //http://localhost:3000/api/getsuscripcionesByUsuario/opalacin@gmail.com
 const getIncidenciasUsuario = async (req, res) => {
     try {
-        // Buscar el usuario por su email
         const usuario = await Usuario.findOne({email: req.params.email});
         if (!usuario) {
             return res.status(404).json({mensaje: 'Usuario no encontrado'});
         }
-        let listaIncidencias = [];
-        tam = usuario.incidencia.length;
-        for (let i = 0; i < tam; i++) {
-            let incidencia = await Incidencia.findById(usuario.incidencia[i]);
-            listaIncidencias.push(incidencia);
-        }
-        res.send(listaIncidencias);
+        const tipos = usuario.tipo_incidencia;
+        return res.status(200).json({tipo_incidencia: tipos});
 
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
     }
 };
+
 module.exports = {
     incidenciasLista,
     getIndicenciasByid,
