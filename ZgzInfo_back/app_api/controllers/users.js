@@ -93,31 +93,61 @@ const userLogin = async (req, res) => {
 //GET  /api/grafica/NumUsuariosIncidencia
 const NumUsuariosIncidencia = async (req, res) => {
     try {
+      const tiposIncidencia = ['Cortes de Agua', 'Cortes de Tráfico', 'Afecciones Importantes'];
       const numUsuariosIncidencia = await Usuario.aggregate([
         {
           $lookup: {
-            from: "incidencias",
-            localField: "incidencia",
-            foreignField: "_id",
-            as: "incidencias"
-          }
+            from: 'incidencias',
+            localField: 'incidencia',
+            foreignField: '_id',
+            as: 'incidencias',
+          },
         },
         {
-          $unwind: "$incidencias"
+          $unwind: '$incidencias',
         },
         {
           $group: {
-            _id: "$incidencias.tipo",
-            count: { $sum: 1 }
-          }
-        }
+            _id: '$incidencias.tipo',
+            usuarios: {
+              $addToSet: '$_id',
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            count: { $sum: 1 },
+            usuarios: { $first: '$usuarios' },
+          },
+        },
       ]);
-      res.status(200).json(numUsuariosIncidencia);
+  
+      // Create an object with the initial count of 0 for each type of incidence
+      const numUsuariosIncidenciaObj = tiposIncidencia.reduce(
+        (obj, tipoIncidencia) => ({
+          ...obj,
+          [tipoIncidencia]: 0,
+        }),
+        {}
+      );
+  
+      // Populate the object with the actual counts
+      numUsuariosIncidencia.forEach((incidencia) => {
+        numUsuariosIncidenciaObj[incidencia._id] = incidencia.count;
+      });
+  
+      // Return the object as an array
+      const result = Object.entries(numUsuariosIncidenciaObj).map(([tipo, count]) => ({
+        tipo,
+        count,
+      }));
+  
+      res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({ error: "Error al obtener el número de usuarios por incidencia." });
+      res.status(500).json({ error: 'Error al obtener el número de usuarios por incidencia.' });
     }
 };
-
 
 module.exports = {
     userCreate,

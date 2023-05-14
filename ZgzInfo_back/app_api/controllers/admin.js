@@ -9,7 +9,7 @@ const Incidencia = mongoose.model('Incidencia');
 
 const listarUsuarios = async (req, res) => {
     try {
-        const usuarios = await Usuario.find({}, 'nombre apellido email'); // obtener todos los usuarios y solo seleccionar nombre, apellido y correo
+        const usuarios = await Usuario.find({}, 'nombre apellido email bloqueado'); // obtener todos los usuarios y solo seleccionar nombre, apellido y correo
         res.status(200).json(usuarios); // responder con un objeto JSON que contiene la lista de usuarios
     } catch (error) {
         console.error(error);
