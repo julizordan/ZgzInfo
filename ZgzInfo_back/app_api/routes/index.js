@@ -1079,11 +1079,69 @@ router
 router
     .route('/api/admin/eliminarMensaje/:email')
     .delete(ctrlAdmin.eliminarMensaje);
+/**
+ * @swagger
+ * paths:
+ *   /api/admin/listadoForos:
+ *     get:
+ *       summary: Obtiene una lista de los foros disponibles
+ *       tags: [Admin]
+ *       responses:
+ *         200:
+ *           description: Lista de foros obtenida correctamente
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: El id del foro
+ *                     tipo:
+ *                       type: string
+ *                       description: El tipo del foro
+ *                     titulo:
+ *                       type: string
+ *                       description: El título del foro
+ *         500:
+ *           description: Error al obtener los foros
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   mensaje:
+ *                     type: string
+ *                     description: El mensaje de error
+ */
 router
     .route('/api/admin/listadoForos')
     .get(ctrlAdmin.listarForos);
+/**
+ * @swagger
+ * /api/admin/eliminar/{idForo}:
+ *   delete:
+ *     summary: Elimina un foro y sus comentarios asociados.
+ *     tags : [Admin]
+ *     parameters:
+ *       - name: idForo
+ *         in: path
+ *         required: true
+ *         description: ID del foro a eliminar.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Foro eliminado exitosamente.
+ *       '404':
+ *         description: Foro no encontrado.
+ *       '500':
+ *         description: Error al eliminar el foro.
+ */
 router
-    .route('/api/admin/:idForo/eliminar')
+    .route('/api/admin/eliminar/:idForo')
     .delete(ctrlAdmin.eliminarForo);
 
 /*

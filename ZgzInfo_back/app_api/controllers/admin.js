@@ -54,6 +54,11 @@ const listadoMensajes = async (req, res) => {
     }
     try {
         const usuario = await Usuario.findOne({email: req.params.email});
+        if (!usuario) {
+            return res.status(404).json({
+                "message": "Usuario no encontrado"
+            });
+        }
         const comentarios = await Comentario.find({ usuario: usuario._id }).select('comentario -_id');
         return res.status(200).json(comentarios);
     } catch (error) {
@@ -67,44 +72,60 @@ const listadoMensajes = async (req, res) => {
 const eliminarMensaje = async (req, res) => {
     if (!req.params.email) {
         return res.status(404).json({
-            "message": "Not found, userId is required"
+            "message": "Not found, email is required"
         });
     }
-    try {
-        const usuario = await Usuario.find({email: req.params.email});
-        // Eliminar todos los comentarios asociados al usuario
-        await Comentario.deleteMany({usuario: usuario.email});
-        return res.status(200).json({message: 'Comentarios eliminados exitosamente'})
 
+    try {
+        const usuario = await Usuario.findOne({email: req.params.email});
+        if (!usuario) {
+            return res.status(404).json({
+                "message": "Usuario no encontrado"
+            });
+        }
+        // Eliminar todos los comentarios asociados al usuario
+        const result = await Comentario.deleteMany({usuario: usuario._id});
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                "message": "El usuario no tiene comentarios"
+            });
+        }
+        return res.status(200).json({message: 'Comentarios eliminados exitosamente'});
     } catch (error) {
         console.error(error);
-        res.status(500).json({message: 'Hubo un error al eliminar  mensajes del usuario'});
+        res.status(500).json({message: 'Hubo un error al eliminar los comentarios del usuario'});
     }
 }
 
 //GET  /api/admin/listadoForos
 const listarForos = async (req, res) => {
     try {
-        const foros = await Foro.find({}, {tipo: 1, titulo: 1});
-        res.status(200).json(foros);
+        const foros = await Foro.find({}, {id: 1, tipo: 1, titulo: 1});
+        return res.status(200).json(foros);
     } catch (error) {
         console.error(error);
-        res.status(500).json({mensaje: 'Error al obtener los foros'});
+        return res.status(500).json({mensaje: 'Error al obtener los foros'});
     }
 }
 
 // DELETE  /api/admin/{idForo}/eliminar
 const eliminarForo = async (req, res) => {
     if (!req.params.idForo) {
-        res.status(404).json({
+        return res.status(404).json({
             "message": "Not found, foroId is required"
         });
-        return;
+
     }
     try {
-        await Foro.findByIdAndRemove(req.params.idForo);
+        const foro = await Foro.findOne({id: req.params.idForo});
+        if (!foro) {
+            return res.status(404).json({
+                "message": "Foro no encontrado"
+            });
+        }
+        await Foro.findByIdAndRemove(foro._id);
         // Devolver respuesta exitosa
-        res.json({mensaje: 'Foro eliminado exitosamente'});
+        return res.status(200).json({mensaje: 'Foro eliminado exitosamente'});
     } catch (error) {
         console.error(error);
         res.status(500).json({message: 'Hubo un error al eliminar el foro'});
