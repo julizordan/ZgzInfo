@@ -699,21 +699,280 @@ router
 router
     .route('/api/getForosUsuario/:email')
     .get(ctrlForos.getForosUsuario);
+/**
+ * @swagger
+ * /api/getForosByid/{id}:
+ *   get:
+ *     tags:
+ *       - Foros
+ *     summary: Obtener un foro por su ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: ID del foro
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Foro'
+ *       '404':
+ *         description: Foro no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Foro no encontrado
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Error al obtener el foro
+ */
 router
     .route('/api/getForosByid/:id')
     .get(ctrlForos.getForosByid);
+/**
+ * @swagger
+ * /api/getForosByTitulo/{titulo}:
+ *   get:
+ *     tags:
+ *       - Foros
+ *     summary: Obtener un foro por su título
+ *     parameters:
+ *       - in: path
+ *         name: titulo
+ *         description: Título del foro
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Foro'
+ *             example:
+ *               id: 17537
+ *               tipo: "Mantenimiento"
+ *               titulo: "Calle Límite (Casetas)"
+ *               comentarios:
+ *                 - usuario: "juan@example.com"
+ *                   comentario: "Este foro es muy útil"
+ *                 - usuario: "pepe@example.com"
+ *                   comentario: "Estoy de acuerdo con Juan"
+ *       '404':
+ *         description: Foro no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Foro no encontrado"
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Error al obtener el foro"
+ */
+router
+    .route('/api/getForosByTitulo/:titulo')
+    .get(ctrlForos.getForosByTitulo);
+/**
+ * @swagger
+ * /api/comentarForo:
+ *   post:
+ *     summary: Añade un comentario a un foro existente
+ *     tags: [Foros]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               foro:
+ *                 type: string
+ *                 description: ID del foro al que se va a añadir el comentario
+ *               comentario:
+ *                 type: string
+ *                 description: Comentario a añadir al foro
+ *               email:
+ *                 type: string
+ *                 description: Email del usuario que realiza el comentario
+ *             example:
+ *               foro: "17373"
+ *               comentario: "me ha encantado"
+ *               email: "javi23@gmail.com"
+ *     responses:
+ *       200:
+ *         description: Comentario añadido con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   description: Mensaje de éxito
+ *                 foroEncontrado:
+ *                   $ref: '#/components/schemas/Foro'
+ *                   description: El foro actualizado después de añadir el comentario
+ *       404:
+ *         description: Foro o usuario no encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   description: Mensaje de error
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Mensaje de error
+ */
 router
     .route('/api/comentarForo')
     .post(ctrlForos.comentarForo);
+/**
+ * @swagger
+ * /api/getForosUsuario/{email}:
+ *   get:
+ *     summary: Obtiene la lista de foros suscritos por un usuario
+ *     tags: [Foros]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Email del usuario
+ *     responses:
+ *       200:
+ *         description: Lista de foros suscritos por el usuario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Foro'
+ *       404:
+ *         description: El usuario no existe
+ *       500:
+ *         description: Error al obtener los foros suscritos
+ */
+
+router
+    .route('/api/getForosUsuario/:email')
+    .get(ctrlForos.getForosUsuario);
 
 /*
  * Admin
  */
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Endpoints para operaciones relacionadas con el administrador de la app
+ */
+
+/**
+ * @swagger
+ * /api/admin/listadoUsuarios:
+ *   get:
+ *     summary: Obtiene la lista de todos los usuarios registrados
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: OK. Se ha obtenido la lista de usuarios correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: id único del usuario
+ *                   email:
+ *                     type: string
+ *                     description: Correo electrónico del usuario
+ *       500:
+ *         description: Error interno del servidor al obtener la lista de usuarios.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   description: Mensaje de error.
+ */
 router
     .route('/api/admin/listadoUsuarios')
     .get(ctrlAdmin.listarUsuarios);
+
+/**
+ * @swagger
+ * /api/admin/bloquear/{email}:
+ *   put:
+ *     summary: Bloquear un usuario por su correo electrónico.
+ *     tags: [Admin]
+ *     description: Si un usuario es bloqueado, no podrá iniciar sesión en la plataforma. Se debe proporcionar el correo electrónico del usuario a bloquear en la URL.
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Correo electrónico del usuario a bloquear.
+ *     responses:
+ *       200:
+ *         description: El usuario ha sido bloqueado correctamente.
+ *         mensaje:
+ *           type: string
+ *         usuario:
+ *           $ref: '#/components/schemas/Usuario'
+ *       404:
+ *         description: No se encontró ningún usuario con el correo electrónico proporcionado.
+ *       500:
+ *         description: Error interno del servidor.
+ */
 router
-    .route('/api/admin/:userId/bloquear')
+    .route('/api/admin/bloquear/:email')
     .put(ctrlAdmin.bloquearUsuario);
 router
     .route('/api/admin/:userId/listadoMensajes')

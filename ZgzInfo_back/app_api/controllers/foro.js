@@ -3,7 +3,6 @@ const Foro = mongoose.model('Foro');
 const Usuario = mongoose.model('Usuario');
 const Comentario = mongoose.model('Comentario');
 
-//http://localhost:3000/api/getForosByid/17373
 const getForosByid = async (req, res) => {
     try {
         const foro = await Foro.findOne({ id: req.params.id }).populate({
@@ -13,12 +12,46 @@ const getForosByid = async (req, res) => {
         if (!foro) {
             return res.status(404).send({ message: "Foro no encontrado" });
         }
-        const comentarios = foro.comentarios.map((comentario) => {
-            return {
-                usuario: comentario.usuario.email,
-                comentario: comentario.comentario,
-            };
+        let comentarios = [];
+        if (foro.comentarios) {
+            comentarios = foro.comentarios.map((comentario) => {
+                return {
+                    usuario: comentario.usuario.email,
+                    comentario: comentario.comentario,
+                };
+            });
+        }
+        const response = {
+            id: foro.id,
+            tipo: foro.tipo,
+            titulo: foro.titulo,
+            comentarios: comentarios,
+        };
+        res.send(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Error al obtener el foro" });
+    }
+};
+
+const getForosByTitulo = async (req, res) => {
+    try {
+        const foro = await Foro.findOne({ titulo: req.params.titulo }).populate({
+            path: "comentarios",
+            populate: { path: "usuario" },
         });
+        if (!foro) {
+            return res.status(404).send({ message: "Foro no encontrado" });
+        }
+        let comentarios = [];
+        if (foro.comentarios) {
+            comentarios = foro.comentarios.map((comentario) => {
+                return {
+                    usuario: comentario.usuario.email,
+                    comentario: comentario.comentario,
+                };
+            });
+        }
         const response = {
             id: foro.id,
             tipo: foro.tipo,
@@ -117,13 +150,13 @@ const comentarForo = async (req, res) => {
         await nuevoComentario.save();
         // Actualizar la lista de comentarios del foro
         if (foroEncontrado.comentarios) {
-            foroEncontrado.comentarios.push(nuevoComentario._id);
+            foroEncontrado.comentarios.push(nuevoComentario.comentario);
         } else {
-            foroEncontrado.comentarios = [nuevoComentario._id];
+            foroEncontrado.comentarios = [nuevoComentario.comentario];
         }
         await foroEncontrado.save();
         // Devolver una respuesta exitosa
-        return res.json({ mensaje: 'Comentario creado exitosamente' });
+        return res.json({ mensaje: 'Comentario creado exitosamente', foroEncontrado });
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
@@ -156,6 +189,7 @@ module.exports = {
     getForosUsuario,
     getForosByid,
     NumForosTipo,
-    comentarForo
+    comentarForo,
+    getForosByTitulo
 };
   
