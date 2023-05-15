@@ -35,8 +35,8 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'app_server/views'));
 app.set('view engine', 'pug');
 
-app.use('/api', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000,http://localhost:3001');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With,Content-Type, Accept');
     next();
 });
