@@ -3,6 +3,7 @@ var path = require('path');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const cors = require('cors');
 require('./app_api/models/db');
 
 const apiRoutes = require('./app_api/routes/index');
@@ -35,11 +36,21 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'app_server/views'));
 app.set('view engine', 'pug');
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:3000,http://localhost:3001');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With,Content-Type, Accept');
     next();
-});
+});*/
+
+app.use(cors({
+    origin: [
+      'http://zgzinfobucket1.s3-website.eu-west-3.amazonaws.com',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ],
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
+}));
+
 
 app.use(logger('dev'));
 app.use(express.json());
