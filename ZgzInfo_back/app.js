@@ -18,7 +18,7 @@ const swaggerSpec = {
         },
         servers: [
             {
-                url: "http://13.53.45.121:8080",
+                url: "http://16.16.99.97:8080",
             },
         ],
     },
